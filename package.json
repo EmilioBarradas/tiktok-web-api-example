@@ -1,0 +1,24 @@
+{
+  "name": "tiktok-web-api-example",
+  "version": "1.0.0",
+  "description": "An example Web API using the tiktok-app-api module.",
+  "main": "server.ts",
+  "dependencies": {
+    "express": "^4.17.1",
+    "tiktok-app-api": "^1.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TikStock/tiktok-web-api-example.git"
+  },
+  "author": "EmilioBarradas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TikStock/tiktok-web-api-example/issues"
+  },
+  "homepage": "https://github.com/TikStock/tiktok-web-api-example#readme"
+}
