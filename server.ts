@@ -4,22 +4,20 @@ import tiktok = require('tiktok-app-api');
 let expressApp: express.Express;
 let tiktokApp: tiktok.TikTok;
 
-main();
-
-async function main(): Promise<void> {
+(async () => {
     expressApp = express();
     tiktokApp = await tiktok();
 
     setupRoutes();
 
     expressApp.listen(8000);
-}
+})();
 
 function setupRoutes(): void {
     expressApp.get('/api/trending', getTrendingVideos);
 
     expressApp.get('/api/user/:identifier', getUserInfo);
-    expressApp.get('/api/user/:identifier/videos', getRecentVideos);
+    expressApp.get('/api/user/:identifier/uploaded', getUploadedVideos);
     expressApp.get('/api/user/:identifier/liked', getLikedVideos);
 
     expressApp.get('/api/video/:id', getVideoInfo);
@@ -32,9 +30,17 @@ function setupRoutes(): void {
 }
 
 async function getTrendingVideos(req: express.Request, res: express.Response): Promise<void> {
-    const trendingVideos = await tiktokApp.getTrendingVideos();
+    let videos: tiktok.VideoInfo[] = [];
 
-    res.status(200).send(trendingVideos).end();
+    const iterator = tiktokApp.getTrendingVideos();
+    let result = await iterator.next();
+
+    while (!result.done) {
+        videos = videos.concat(result.value);
+        result = await iterator.next();
+    }
+
+    res.status(200).send(videos).end();
 }
 
 async function getUserInfo(req: express.Request, res: express.Response): Promise<void> {
@@ -49,18 +55,36 @@ async function getUserInfo(req: express.Request, res: express.Response): Promise
     res.status(200).send(userInfo).end();
 }
 
-async function getRecentVideos(req: express.Request, res: express.Response): Promise<void> {
+async function getUploadedVideos(req: express.Request, res: express.Response): Promise<void> {
     const user = await getUser(req.params.identifier);
-    const recentVideos = await tiktokApp.getRecentVideos(user);
 
-    res.status(200).send(recentVideos).end();
+    let videos: tiktok.VideoInfo[] = [];
+
+    const iterator = tiktokApp.getUploadedVideos(user);
+    let result = await iterator.next();
+
+    while (!result.done) {
+        videos = videos.concat(result.value);
+        result = await iterator.next();
+    }
+
+    res.status(200).send(videos).end();
 }
 
 async function getLikedVideos(req: express.Request, res: express.Response): Promise<void> {
     const user = await getUser(req.params.identifier);
-    const likedVideos = await tiktokApp.getLikedVideos(user);
 
-    res.status(200).send(likedVideos).end();
+    let videos: tiktok.VideoInfo[] = [];
+
+    const iterator = tiktokApp.getLikedVideos(user);
+    let result = await iterator.next();
+
+    while (!result.done) {
+        videos = videos.concat(result.value);
+        result = await iterator.next();
+    }
+
+    res.status(200).send(videos).end();
 }
 
 async function getVideoInfo(req: express.Request, res: express.Response): Promise<void> {
@@ -91,9 +115,18 @@ async function getAudioInfo(req: express.Request, res: express.Response): Promis
 
 async function getAudioTopVideos(req: express.Request, res: express.Response): Promise<void> {
     const audio = tiktokApp.getAudio(req.params.id);
-    const topVideos = await tiktokApp.getAudioTopVideos(audio);
 
-    res.status(200).send(topVideos).end();
+    let videos: tiktok.VideoInfo[] = [];
+
+    const iterator = tiktokApp.getAudioTopVideos(audio);
+    let result = await iterator.next();
+
+    while (!result.done) {
+        videos = videos.concat(result.value);
+        result = await iterator.next();
+    }
+
+    res.status(200).send(videos).end();
 }
 
 async function getTagInfo(req: express.Request, res: express.Response): Promise<void> {
@@ -110,9 +143,18 @@ async function getTagInfo(req: express.Request, res: express.Response): Promise<
 
 async function getTagTopVideos(req: express.Request, res: express.Response): Promise<void> {
     const tag = await tiktokApp.getTag(req.params.id);
-    const topVideos = await tiktokApp.getTagTopVideos(tag);
 
-    res.status(200).send(topVideos).end();
+    let videos: tiktok.VideoInfo[] = [];
+
+    const iterator = tiktokApp.getTagTopVideos(tag);
+    let result = await iterator.next();
+
+    while (!result.done) {
+        videos = videos.concat(result.value);
+        result = await iterator.next();
+    }
+
+    res.status(200).send(videos).end();
 }
 
 async function getUser(id: string): Promise<tiktok.User> {
